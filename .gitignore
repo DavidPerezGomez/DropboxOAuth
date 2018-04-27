@@ -5,3 +5,5 @@ resources/
 
 # pycthon
 __pychache__/
+
+*.pyc
