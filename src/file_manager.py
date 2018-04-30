@@ -11,24 +11,25 @@ class FileManager:
         self.access_token = access_token
 
     def upload_file(self, local_path_to_upload, remote_save_path):
-        while remote_save_path.startswith('/'):
-            remote_save_path = remote_save_path[1:]
-        remote_save_path = '/' + remote_save_path
+        if os.path.isfile(local_path_to_upload):
+            while remote_save_path.startswith('/'):
+                remote_save_path = remote_save_path[1:]
+            remote_save_path = '/' + remote_save_path
 
-        uri = 'https://content.dropboxapi.com/2/files/upload'
-        dropbox_api_arg = {'path': remote_save_path,
-                           'mode': 'add',
-                           'autorename': True,
-                           'mute': False}
-        headers = {'Authorization': 'Bearer ' + self.access_token,
-                   'Dropbox-API-Arg': json.dumps(dropbox_api_arg),
-                   'Content-Type': 'application/octet-stream'}
-        with open(os.path.expanduser(local_path_to_upload), 'rb') as file:
-            data = file.read()
+            uri = 'https://content.dropboxapi.com/2/files/upload'
+            dropbox_api_arg = {'path': remote_save_path,
+                               'mode': 'add',
+                               'autorename': True,
+                               'mute': False}
+            headers = {'Authorization': 'Bearer ' + self.access_token,
+                       'Dropbox-API-Arg': json.dumps(dropbox_api_arg),
+                       'Content-Type': 'application/octet-stream'}
+            with open(os.path.expanduser(local_path_to_upload), 'rb') as file:
+                data = file.read()
 
-        response = requests.post(uri, headers=headers, data=data)
+            response = requests.post(uri, headers=headers, data=data)
 
-        return response
+            return response
 
     def download_file(self, remote_path_to_download, local_save_path):
         while remote_path_to_download.startswith('/'):

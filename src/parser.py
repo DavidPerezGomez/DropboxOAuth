@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*- #
 
 from file_manager import FileManager
+import os
 
 
 def parse_command(argv, token):
@@ -30,8 +31,12 @@ def _parse_upload(argv, file_manager):
     try:
         local_path_to_upload = argv[2]
         remote_save_path = argv[3]
-        print 'Subiendo el archivo {} a {} en Dropbox...'.format(local_path_to_upload, remote_save_path)
-        response = file_manager.upload_file(local_path_to_upload, remote_save_path)
+        full_local_path = os.path.expanduser(local_path_to_upload)
+        if os.path.isfile(full_local_path):
+            print 'Subiendo el archivo {} a {} en Dropbox...'.format(local_path_to_upload, remote_save_path)
+            response = file_manager.upload_file(full_local_path, remote_save_path)
+        else:
+            print '\033[33m{} no es un archivo\033[m'.format(full_local_path)
     except IndexError:
         print '\033[33mEsperados dos argumentos\033[0m'
         print 'Ejemplo: upload /mi/archivo/local /ruta/dropbox/donde/guardar'
@@ -72,7 +77,7 @@ def _parse_delete(argv, file_manager):
     try:
         remote_path_to_delete = argv[2]
         response = file_manager.delete_file(remote_path_to_delete)
-        print 'Eliminando el archivo {}...'.format(remote_path_to_delete)
+        print 'Eliminando el fichero {}...'.format(remote_path_to_delete)
     except IndexError:
         print '\033[33mEsperados un argumento\033[0m'
         print 'Ejemplo: delete /mi/archivo/dropbox'
