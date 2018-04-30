@@ -5,33 +5,47 @@ import token_manager
 import parser
 
 
-def main():
-    token = token_manager.get_access_token()
+def main(already_tried=False):
+    if not already_tried:
+        token = token_manager.get_access_token()
+    else:
+        token = token_manager.reset_access_token()
     response = parser.parse_command(sys.argv, token)
-    if response is not None and response.status_code != 200:
+    if response is None:
+        # comando erroneo (error del usuario)
+        pass
+    elif response.status_code != 200:
+        # problema al ejecutar el comando (error de la aplicación)
         print '\033[31mNo se ha podido completar la operación\033[0m'
-        _manage_error(response)
+        if not already_tried:
+            _manage_error(response)
     else:
         print 'Hecho!'
 
 
 def _manage_error(response):
     code = response.status_code
-    if code == 401:
+    if code == 400:
+        # Bad input parameter.
+        _manage400()
+    elif code == 401:
+        # Bad or expired token.
         _manage401()
     elif code/100 == 5:
+        # An error occurred on the Dropbox servers.
         _manage5xx()
     else:
+        # Alguna otra cosa
+        print code
         print response.content
 
 
+def _manage400():
+    main(True)
+
+
 def _manage401():
-    token = token_manager.reset_access_token()
-    response = parser.parse_command(sys.argv, token)
-    if response is not None and response.status_code != 200:
-        print '\033[31mNo se ha podido completar la operación\033[0m'
-    else:
-        print 'Hecho!'
+    main(True)
 
 
 def _manage5xx():

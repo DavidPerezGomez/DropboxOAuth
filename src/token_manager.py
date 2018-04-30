@@ -96,7 +96,9 @@ def reset_access_token():
 
 
 def get_access_token():
+    # se intenta leer el access_token guardado
     access_token = _read_access_token()
     if access_token is None:
+        # si no se puede, se intenta obtener uno nuevo
         access_token = reset_access_token()
     return access_token

@@ -3,5 +3,6 @@ resources/
 # pycharm
 .idea/
 
-# pycthon
+# python
 __pychache__/
+src/*.pyc
