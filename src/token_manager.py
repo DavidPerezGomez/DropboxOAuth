@@ -136,3 +136,7 @@ def get_access_token():
         # si no se puede, se intenta obtener uno nuevo
         access_token = reset_access_token()
     return access_token
+
+
+if __name__ == '__main__':
+    pass

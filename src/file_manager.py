@@ -82,3 +82,7 @@ class FileManager:
         response = requests.post(uri, headers=headers, data=data)
 
         return response
+
+
+if __name__ == '__main__':
+    pass

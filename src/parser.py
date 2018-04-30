@@ -77,3 +77,7 @@ def _parse_delete(argv, file_manager):
         print '\033[33mEsperados un argumento\033[0m'
         print 'Ejemplo: delete /mi/archivo/dropbox'
     return response
+
+
+if __name__ == '__main__':
+    pass
