@@ -3,6 +3,7 @@
 import sys
 import token_manager
 import parser
+import json
 
 
 def main(already_tried=False):
@@ -37,11 +38,16 @@ def _manage_error(response):
     elif code == 401:
         # Bad or expired token.
         _manage401()
+    elif code == 409:
+        # Endpoint-specific error.
+        _manage409(response)
     elif code/100 == 5:
         # An error occurred on the Dropbox servers.
         _manage5xx()
     else:
         # Alguna otra cosa
+        print '\033[33mOoops, ha surgido alguno de los errores para los que no he puesto tratamiento especializado.\033[0m'
+        print '\033[33mAquí están el código de error y el mensaje devuelto por Dropbox.\033[0m'
         print code
         print response.content
 
@@ -52,6 +58,14 @@ def _manage400():
 
 def _manage401():
     main(True)
+
+
+def _manage409(response):
+    response_json = json.loads(response.content)
+    try:
+        print '\033[33m{}\033[0m'.format(response_json['user_message']['text']).encode('utf-8')
+    except KeyError:
+        print '\033[33mAlgo ha ido mal en la petición. Revise que todos los parámetros son correctos\033[0m'
 
 
 def _manage5xx():

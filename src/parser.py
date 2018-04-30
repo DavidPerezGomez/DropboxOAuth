@@ -5,23 +5,24 @@ from file_manager import FileManager
 
 def parse_command(argv, token):
     file_manager = FileManager(token)
-    command = argv[1].lower()
-    upload_commands = ['subir', 'upload', 'up']
-    download_commands = ['bajar', 'descargar', 'download', 'down']
-    share_commands = ['compartir', 'enviar', 'mandar', 'share']
-    delete_commands = ['borrar', 'eliminar', 'delete', 'rm']
-    response = None
-    if command in upload_commands:
-        response = _parse_upload(argv, file_manager)
-    elif command in download_commands:
-        response = _parse_download(argv, file_manager)
-    elif command in share_commands:
-        response = _parse_share(argv, file_manager)
-    elif command in delete_commands:
-        response = _parse_delete(argv, file_manager)
-    else:
-        print 'Comando {} desconocido'.format(command)
-    return response
+    if len(argv) > 1:
+        command = argv[1].lower()
+        upload_commands = ['subir', 'upload', 'up']
+        download_commands = ['bajar', 'descargar', 'download', 'down']
+        share_commands = ['compartir', 'enviar', 'mandar', 'share']
+        delete_commands = ['borrar', 'eliminar', 'delete', 'rm']
+        response = None
+        if command in upload_commands:
+            response = _parse_upload(argv, file_manager)
+        elif command in download_commands:
+            response = _parse_download(argv, file_manager)
+        elif command in share_commands:
+            response = _parse_share(argv, file_manager)
+        elif command in delete_commands:
+            response = _parse_delete(argv, file_manager)
+        else:
+            print 'Comando {} desconocido'.format(command)
+        return response
 
 
 def _parse_upload(argv, file_manager):
