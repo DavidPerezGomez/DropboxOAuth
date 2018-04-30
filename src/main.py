@@ -9,18 +9,24 @@ def main(already_tried=False):
     if not already_tried:
         token = token_manager.get_access_token()
     else:
+        # ha habido un error. El token guardado no es válido
         token = token_manager.reset_access_token()
-    response = parser.parse_command(sys.argv, token)
-    if response is None:
-        # comando erroneo (error del usuario)
-        pass
-    elif response.status_code != 200:
-        # problema al ejecutar el comando (error de la aplicación)
-        print '\033[31mNo se ha podido completar la operación\033[0m'
-        if not already_tried:
-            _manage_error(response)
+
+    if token is not None:
+        response = parser.parse_command(sys.argv, token)
+        if response is None:
+            # comando erroneo (error del usuario)
+            pass
+        elif response.status_code != 200:
+            # problema al ejecutar el comando (error de la aplicación)
+            if not already_tried:
+                _manage_error(response)
+            else:
+                print '\033[31mNo se ha podido completar la operación\033[0m'
+        else:
+            print 'Hecho!'
     else:
-        print 'Hecho!'
+        print '\033[31mNo se han obtenido permisos para realizar esa acción\033[0m'
 
 
 def _manage_error(response):

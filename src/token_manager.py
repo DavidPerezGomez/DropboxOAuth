@@ -9,10 +9,17 @@ import os
 
 
 def _obtain_auth_code():
+    """Pide permiso al usuario y obtiene y devuelve el código de autorización obtenido.
+    Devuelve None si el usuario no concede el permiso."""
+
     data_path = os.path.dirname(os.path.abspath(__file__)) + '/resources/data.json'
-    with open(data_path, 'r') as file:
-        data_json = json.load(file)
-    dropbox_app_key = data_json['dropbox_app_key']
+    try:
+        with open(data_path, 'r') as file:
+            data_json = json.load(file)
+        dropbox_app_key = data_json['dropbox_app_key']
+    except (KeyError, ValueError):
+        print 'Error en la configuración del proyecto'
+        exit(1)
 
     server = 'www.dropbox.com'
     params = {'response_type': 'code',
@@ -39,16 +46,30 @@ def _obtain_auth_code():
     </html>"""
     client_connection.sendall(http_response)
     client_connection.close()
-    code = request.split('\n')[0].split('?')[1].split('=')[1].split(' ')[0]
+
+    param = request.split('\n')[0].split('?')[1]
+    name = param.split('=')[0].split(' ')[0]
+    if name == 'code':
+        code = param.split('=')[1].split(' ')[0]
+    else:
+        code = None
+
     return code
 
 
 def _obtain_access_token(auth_code):
+    """Obtiene y devuelve el token de acceso concedido por el código de autenticación auth_code.
+    Si no se puede obtener el token, devuelve None"""
+
     data_path = os.path.dirname(os.path.abspath(__file__)) + '/resources/data.json'
-    with open(data_path, 'r') as file:
-        data_json = json.load(file)
-    dropbox_app_key = data_json['dropbox_app_key']
-    dropbox_secret_key = data_json['dropbox_secret_key']
+    try:
+        with open(data_path, 'r') as file:
+            data_json = json.load(file)
+        dropbox_app_key = data_json['dropbox_app_key']
+        dropbox_secret_key = data_json['dropbox_secret_key']
+    except (KeyError, ValueError):
+        print 'Error en la configuración del proyecto'
+        exit(1)
 
     headers = {'User_Agent': 'Python_Client',
                'Content_Type': 'application/x-www-form-urlenconded'}
@@ -70,17 +91,23 @@ def _obtain_access_token(auth_code):
 
 
 def _read_access_token():
+    """Lee y devuelve el token de acceso. Devuelve None si no se puede leer el token."""
+
     path = os.path.dirname(os.path.abspath(__file__)) + '/resources/access_token.json'
     if os.path.isfile(path):
-        with open(path, 'r') as file:
-            code_json = json.load(file)
-        key = 'access_token'
-        if key in code_json:
-            return code_json[key]
-    return None
+        try:
+            with open(path, 'r') as file:
+                code_json = json.load(file)
+            key = 'access_token'
+            if key in code_json:
+                return code_json[key]
+        except (KeyError, ValueError):
+            pass
 
 
 def _save_access_token(token):
+    """Guarda el token de acceso en formato json"""
+
     path = os.path.dirname(os.path.abspath(__file__)) + '/resources/access_token.json'
     code = {'access_token': token}
     with open(path, 'w') as file:
@@ -88,14 +115,21 @@ def _save_access_token(token):
 
 
 def reset_access_token():
+    """Intenta obtener el token de acceso a partir de la autorización del usuario.
+    Devuelve None si no se obtiene el permiso del usuario."""
+
     auth_code = _obtain_auth_code()
-    access_token = _obtain_access_token(auth_code)
-    if access_token is not None:
-        _save_access_token(access_token)
-    return access_token
+    if auth_code is not None:
+        access_token = _obtain_access_token(auth_code)
+        if access_token is not None:
+            _save_access_token(access_token)
+        return access_token
 
 
 def get_access_token():
+    """Intenta obtener el token de acceso leyéndolo desde el archivo en el que se guarda.
+    Si no lo consigue, intenta obtener uno nuevo a partir de la autorizacion del usuario"""
+
     # se intenta leer el access_token guardado
     access_token = _read_access_token()
     if access_token is None:
