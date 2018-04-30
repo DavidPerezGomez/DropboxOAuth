@@ -17,7 +17,7 @@ def _obtain_auth_code():
         with open(data_path, 'r') as file:
             data_json = json.load(file)
         dropbox_app_key = data_json['dropbox_app_key']
-    except (KeyError, ValueError):
+    except (KeyError, ValueError, IOError):
         print 'Error en la configuración del proyecto'
         exit(1)
 
@@ -67,7 +67,7 @@ def _obtain_access_token(auth_code):
             data_json = json.load(file)
         dropbox_app_key = data_json['dropbox_app_key']
         dropbox_secret_key = data_json['dropbox_secret_key']
-    except (KeyError, ValueError):
+    except (KeyError, ValueError, IOError):
         print 'Error en la configuración del proyecto'
         exit(1)
 
@@ -101,8 +101,8 @@ def _read_access_token():
             key = 'access_token'
             if key in code_json:
                 return code_json[key]
-        except (KeyError, ValueError):
-            pass
+        except (KeyError, ValueError, IOError):
+            return None
 
 
 def _save_access_token(token):
